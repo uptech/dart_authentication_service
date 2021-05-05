@@ -1,4 +1,9 @@
-enum AuthenticationError { invalidPassword, invalidUsername, unknown }
+enum AuthenticationError {
+  invalidPassword,
+  invalidUsername,
+  invalidCredentials,
+  unknown
+}
 
 class AuthenticationResult {
   late bool success;
