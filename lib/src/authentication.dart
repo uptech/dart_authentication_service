@@ -1,4 +1,5 @@
 import 'package:dart_authentication_service/dart_authentication_service.dart';
+import 'package:dart_authentication_service/src/authentication_result.dart';
 import 'package:hive/hive.dart';
 
 class Authentication {
@@ -15,15 +16,22 @@ class Authentication {
     return auth?.isLoggedIn() ?? false;
   }
 
-  void logIn(String username, String password, bool rememberMe) {
+  AuthenticationResult logIn(
+      String username, String password, bool rememberMe) {
     try {
-      auth?.logIn(username, password);
+      var result = auth?.logIn(username, password);
       if (rememberMe) {
         box?.put('username', username);
       } else {
         box?.put('username', null);
       }
-    } catch (error) {}
+      return result ??
+          AuthenticationResult(
+              success: false, errors: [AuthenticationError.unknown]);
+    } catch (error) {
+      return AuthenticationResult(
+          success: false, errors: [AuthenticationError.unknown]);
+    }
   }
 
   User? currentUser() {

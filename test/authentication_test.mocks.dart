@@ -2,10 +2,12 @@
 // in dart_authentication_service/test/authentication_test.dart.
 // Do not manually edit this file.
 
-import 'package:dart_authentication_service/src/providers/cognito_provider.dart'
+import 'package:dart_authentication_service/src/authentication_result.dart'
     as _i2;
-import 'package:dart_authentication_service/src/providers/cognito_user.dart'
+import 'package:dart_authentication_service/src/providers/cognito_provider.dart'
     as _i3;
+import 'package:dart_authentication_service/src/providers/cognito_user.dart'
+    as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: comment_references
@@ -15,23 +17,27 @@ import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: avoid_redundant_argument_values
 
+class _FakeAuthenticationResult extends _i1.Fake
+    implements _i2.AuthenticationResult {}
+
 /// A class which mocks [CognitoProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCognitoProvider extends _i1.Mock implements _i2.CognitoProvider {
+class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
   MockCognitoProvider() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  set user(_i3.CognitoUser? _user) =>
+  set user(_i4.CognitoUser? _user) =>
       super.noSuchMethod(Invocation.setter(#user, _user),
           returnValueForMissingStub: null);
   @override
   bool isLoggedIn() => (super.noSuchMethod(Invocation.method(#isLoggedIn, []),
       returnValue: false) as bool);
   @override
-  void logIn(String? username, String? password) =>
-      super.noSuchMethod(Invocation.method(#logIn, [username, password]),
-          returnValueForMissingStub: null);
+  _i2.AuthenticationResult logIn(String? username, String? password) =>
+      (super.noSuchMethod(Invocation.method(#logIn, [username, password]),
+              returnValue: _FakeAuthenticationResult())
+          as _i2.AuthenticationResult);
 }

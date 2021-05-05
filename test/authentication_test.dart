@@ -1,4 +1,5 @@
 import 'package:dart_authentication_service/dart_authentication_service.dart';
+import 'package:dart_authentication_service/src/authentication_result.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
@@ -11,14 +12,14 @@ main() async {
   MockCognitoProvider cognitoProvider = MockCognitoProvider();
 
   await authentication.init(cognitoProvider);
-  group('isLoggedIn', () {
+  group('isLoggedIn()', () {
     test('calls the providers isLoggedIn method', () {
       when(cognitoProvider.isLoggedIn()).thenReturn(true);
       expect(authentication.isLoggedIn(), true);
     });
   });
 
-  group('currentUser', () {
+  group('currentUser()', () {
     test('returns the user when set', () {
       CognitoUser user = CognitoUser();
       when(cognitoProvider.currentUser()).thenReturn(user);
@@ -31,15 +32,26 @@ main() async {
     });
   });
 
-  group('logIn', () {
+  group('logIn()', () {
     test('saves user when rememberMe is true', () {
+      when(cognitoProvider.logIn('myuser', 'password'))
+          .thenReturn(AuthenticationResult(success: true));
       authentication.logIn('myuser', 'password', true);
       expect(authentication.lastUsername(), 'myuser');
     });
 
     test('does not save user when rememberMe is false', () {
+      when(cognitoProvider.logIn('myuser', 'password'))
+          .thenReturn(AuthenticationResult(success: true));
       authentication.logIn('myuser', 'password', false);
       expect(authentication.lastUsername(), null);
+    });
+
+    test('returns an authentication object', () {
+      when(cognitoProvider.logIn('myuser', 'password'))
+          .thenReturn(AuthenticationResult(success: true));
+      var result = authentication.logIn('myuser', 'password', false);
+      expect(result.success, true);
     });
   });
 }
