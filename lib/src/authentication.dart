@@ -16,10 +16,10 @@ class Authentication {
     return auth?.isLoggedIn() ?? false;
   }
 
-  AuthenticationResult logIn(
-      String username, String password, bool rememberMe) {
+  Future<AuthenticationResult> logIn(
+      String username, String password, bool rememberMe) async {
     try {
-      var result = auth?.logIn(username, password);
+      var result = await auth?.logIn(username, password);
       if (rememberMe) {
         box?.put('username', username);
       } else {

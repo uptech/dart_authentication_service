@@ -2,6 +2,8 @@
 // in dart_authentication_service/test/authentication_test.dart.
 // Do not manually edit this file.
 
+import 'dart:async' as _i5;
+
 import 'package:dart_authentication_service/src/authentication_result.dart'
     as _i2;
 import 'package:dart_authentication_service/src/providers/cognito_provider.dart'
@@ -36,8 +38,10 @@ class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
   bool isLoggedIn() => (super.noSuchMethod(Invocation.method(#isLoggedIn, []),
       returnValue: false) as bool);
   @override
-  _i2.AuthenticationResult logIn(String? username, String? password) =>
+  _i5.Future<_i2.AuthenticationResult> logIn(
+          String? username, String? password) =>
       (super.noSuchMethod(Invocation.method(#logIn, [username, password]),
-              returnValue: _FakeAuthenticationResult())
-          as _i2.AuthenticationResult);
+              returnValue: Future<_i2.AuthenticationResult>.value(
+                  _FakeAuthenticationResult()))
+          as _i5.Future<_i2.AuthenticationResult>);
 }
