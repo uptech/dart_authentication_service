@@ -33,24 +33,24 @@ main() async {
   });
 
   group('logIn()', () {
-    test('saves user when rememberMe is true', () {
+    test('saves user when rememberMe is true', () async {
       when(cognitoProvider.logIn('myuser', 'password'))
-          .thenReturn(AuthenticationResult(success: true));
-      authentication.logIn('myuser', 'password', true);
+          .thenAnswer((_) async => AuthenticationResult(success: true));
+      await authentication.logIn('myuser', 'password', true);
       expect(authentication.lastUsername(), 'myuser');
     });
 
-    test('does not save user when rememberMe is false', () {
+    test('does not save user when rememberMe is false', () async {
       when(cognitoProvider.logIn('myuser', 'password'))
-          .thenReturn(AuthenticationResult(success: true));
-      authentication.logIn('myuser', 'password', false);
+          .thenAnswer((_) async => AuthenticationResult(success: true));
+      await authentication.logIn('myuser', 'password', false);
       expect(authentication.lastUsername(), null);
     });
 
-    test('returns an authentication object', () {
+    test('returns an authentication object', () async {
       when(cognitoProvider.logIn('myuser', 'password'))
-          .thenReturn(AuthenticationResult(success: true));
-      var result = authentication.logIn('myuser', 'password', false);
+          .thenAnswer((_) async => AuthenticationResult(success: true));
+      var result = await authentication.logIn('myuser', 'password', false);
       expect(result.success, true);
     });
   });

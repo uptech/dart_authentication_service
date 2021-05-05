@@ -10,7 +10,7 @@ class CognitoProvider implements AuthenticationProvider {
     return true;
   }
 
-  AuthenticationResult logIn(String username, String password) {
+  Future<AuthenticationResult> logIn(String username, String password) async {
     return AuthenticationResult(success: true);
   }
 
