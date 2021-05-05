@@ -17,14 +17,33 @@ class Authentication {
   }
 
   Future<AuthenticationResult> logIn(
-      String username, String password, bool rememberMe) async {
+      {required String username,
+      required String password,
+      bool? rememberMe}) async {
     try {
-      var result = await auth?.logIn(username, password);
-      if (rememberMe) {
+      var result = await auth?.logIn(username: username, password: password);
+      if (rememberMe ?? false) {
         box?.put('username', username);
       } else {
         box?.put('username', null);
       }
+      return result ??
+          AuthenticationResult(
+              success: false, errors: [AuthenticationError.unknown]);
+    } catch (error) {
+      return AuthenticationResult(
+          success: false, errors: [AuthenticationError.unknown]);
+    }
+  }
+
+  Future<AuthenticationResult> createUser(
+      {required String username,
+      required String password,
+      Map<String, dynamic>? properties}) async {
+    try {
+      var result = await auth?.createUser(
+          username: username, password: password, properties: properties);
+
       return result ??
           AuthenticationResult(
               success: false, errors: [AuthenticationError.unknown]);

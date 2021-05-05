@@ -10,7 +10,15 @@ class CognitoProvider implements AuthenticationProvider {
     return true;
   }
 
-  Future<AuthenticationResult> logIn(String username, String password) async {
+  Future<AuthenticationResult> logIn(
+      {required String username, required String password}) async {
+    return AuthenticationResult(success: true);
+  }
+
+  Future<AuthenticationResult> createUser(
+      {required String username,
+      required String password,
+      Map<String, dynamic>? properties}) async {
     return AuthenticationResult(success: true);
   }
 
