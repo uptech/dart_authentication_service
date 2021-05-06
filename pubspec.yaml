@@ -9,6 +9,7 @@ environment:
 
 dependencies:
   hive: ^2.0.4
+  amazon_cognito_identity_dart_2: ^1.0.3
 
 dev_dependencies:
   test:

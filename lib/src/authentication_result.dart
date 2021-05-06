@@ -1,3 +1,5 @@
+import 'package:dart_authentication_service/src/user.dart';
+
 enum AuthenticationError {
   invalidPassword,
   invalidUsername,
@@ -8,6 +10,7 @@ enum AuthenticationError {
 class AuthenticationResult {
   late bool success;
   List<AuthenticationError>? errors = [];
+  User? user;
 
-  AuthenticationResult({required this.success, this.errors});
+  AuthenticationResult({required this.success, this.errors, this.user});
 }

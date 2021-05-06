@@ -21,7 +21,7 @@ main() async {
 
   group('currentUser()', () {
     test('returns the user when set', () {
-      CognitoUser user = CognitoUser();
+      CognitoUserImpl user = CognitoUserImpl();
       when(cognitoProvider.currentUser()).thenReturn(user);
       expect(authentication.currentUser(), user);
     });

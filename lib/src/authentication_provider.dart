@@ -11,5 +11,7 @@ abstract class AuthenticationProvider {
       required String password,
       Map<String, dynamic>? properties});
 
+  Future<AuthenticationResult> refreshSession({required User user});
+
   User? currentUser();
 }
