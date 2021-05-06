@@ -31,7 +31,7 @@ class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
   }
 
   @override
-  set user(_i4.CognitoUser? _user) =>
+  set user(_i4.CognitoUserImpl? _user) =>
       super.noSuchMethod(Invocation.setter(#user, _user),
           returnValueForMissingStub: null);
   @override

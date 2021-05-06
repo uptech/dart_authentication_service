@@ -3,4 +3,5 @@ abstract class User {
   String? password;
   String? name;
   String? accessToken;
+  String? refreshToken;
 }

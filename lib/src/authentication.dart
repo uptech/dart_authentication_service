@@ -53,6 +53,18 @@ class Authentication {
     }
   }
 
+  Future<AuthenticationResult> refreshSession(User user) async {
+    try {
+      var result = await auth?.refreshSession(user: user);
+      return result ??
+          AuthenticationResult(
+              success: false, errors: [AuthenticationError.unknown]);
+    } catch (error) {
+      return AuthenticationResult(
+          success: false, errors: [AuthenticationError.unknown]);
+    }
+  }
+
   User? currentUser() {
     return auth?.currentUser();
   }

@@ -1,8 +1,9 @@
 import 'package:dart_authentication_service/src/user.dart';
 
-class CognitoUser implements User {
-  String? email;
+class CognitoUserImpl implements User {
+  String? username;
   String? password;
   String? name;
   String? accessToken;
+  String? refreshToken;
 }
