@@ -53,6 +53,21 @@ class Authentication {
     }
   }
 
+  Future<AuthenticationResult> verifyUser(
+      {required User user, required String code, String? attribute}) async {
+    try {
+      var result =
+          await auth?.verifyUser(user: user, code: code, attribute: attribute);
+
+      return result ??
+          AuthenticationResult(
+              success: false, errors: [AuthenticationError.unknown]);
+    } catch (error) {
+      return AuthenticationResult(
+          success: false, errors: [AuthenticationError.unknown]);
+    }
+  }
+
   Future<AuthenticationResult> refreshSession(User user) async {
     try {
       var result = await auth?.refreshSession(user: user);
