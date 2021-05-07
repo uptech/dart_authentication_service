@@ -67,6 +67,21 @@ class CognitoProvider implements AuthenticationProvider {
     }
   }
 
+  Future<AuthenticationResult> verifyUser(
+      {required User user, required String code, String? attribute}) async {
+    try {
+      final userPool = CognitoUserPool(_userPoolId, _clientId);
+      final cognitoUser = CognitoUser(user.username, userPool);
+      final verified = await cognitoUser.verifyAttribute(attribute, code);
+      print(verified);
+      return AuthenticationResult(success: true, user: user);
+    } catch (e) {
+      print(e);
+
+      return AuthenticationResult(success: false);
+    }
+  }
+
   Future<AuthenticationResult> refreshSession({required User user}) async {
     try {
       final userPool = CognitoUserPool(_userPoolId, _clientId);
