@@ -8,8 +8,9 @@ environment:
   sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  hive: ^2.0.4
   amazon_cognito_identity_dart_2: ^1.0.3
+  hive: ^2.0.4
+  jose: ^0.3.2
 
 dev_dependencies:
   test:
