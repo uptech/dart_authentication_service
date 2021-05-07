@@ -6,18 +6,19 @@ import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:jose/jose.dart';
 
 class CognitoProvider implements AuthenticationProvider {
-  CognitoUserImpl? user;
+  CognitoUserImpl? _user;
   String _userPoolId;
   String _clientId;
 
   CognitoProvider(this._userPoolId, this._clientId);
 
   bool isLoggedIn() {
-    if (user == null) {
+    if (_user == null || _user?.accessToken == null) {
       return false;
     } else {
-      // we can use the unverified token here because the server should actually verify and no data should be comprimised
-      var jwt = JsonWebToken.unverified(user?.accessToken ?? '');
+      // we can use the unverified token here because the server should actually
+      // verify and no data should be comprimised
+      var jwt = JsonWebToken.unverified(_user!.accessToken!);
       if (jwt.claims.expiry != null) {
         if (jwt.claims.expiry!.isAfter(DateTime.now())) {
           return true;
@@ -49,11 +50,11 @@ class CognitoProvider implements AuthenticationProvider {
       return AuthenticationResult(
           success: false, errors: [AuthenticationError.unknown]);
     }
-    CognitoUserImpl user = CognitoUserImpl();
-    user.username = username;
-    user.refreshToken = session?.getRefreshToken()?.getToken();
-    user.accessToken = session?.getAccessToken().getJwtToken();
-    return AuthenticationResult(success: true, user: user);
+    _user = CognitoUserImpl();
+    _user!.username = username;
+    _user!.refreshToken = session?.getRefreshToken()?.getToken();
+    _user!.accessToken = session?.getAccessToken().getJwtToken();
+    return AuthenticationResult(success: true);
   }
 
   Future<AuthenticationResult> createUser(
@@ -73,6 +74,8 @@ class CognitoProvider implements AuthenticationProvider {
         password,
         userAttributes: userAttributes,
       );
+      _user = CognitoUserImpl();
+      _user!.username = username;
       return AuthenticationResult(success: true);
     } catch (e) {
       print(e);
@@ -86,9 +89,8 @@ class CognitoProvider implements AuthenticationProvider {
     try {
       final userPool = CognitoUserPool(_userPoolId, _clientId);
       final cognitoUser = CognitoUser(user.username, userPool);
-      final verified = await cognitoUser.verifyAttribute(attribute, code);
-      print(verified);
-      return AuthenticationResult(success: true, user: user);
+      final verified = await cognitoUser.confirmRegistration(code);
+      return AuthenticationResult(success: true);
     } catch (e) {
       print(e);
 
@@ -102,10 +104,11 @@ class CognitoProvider implements AuthenticationProvider {
       final refreshToken = CognitoRefreshToken(user.refreshToken);
       final cognitoUser = CognitoUser(user.username, userPool);
       final session = await cognitoUser.refreshSession(refreshToken);
-      user.username = cognitoUser.username;
-      user.refreshToken = session?.getRefreshToken()?.getToken();
-      user.accessToken = session?.getAccessToken().getJwtToken();
-      return AuthenticationResult(success: true, user: user);
+      _user = CognitoUserImpl();
+      _user!.username = cognitoUser.username;
+      _user!.refreshToken = session?.getRefreshToken()?.getToken();
+      _user!.accessToken = session?.getAccessToken().getJwtToken();
+      return AuthenticationResult(success: true);
     } catch (e) {
       print(e);
 
@@ -114,6 +117,6 @@ class CognitoProvider implements AuthenticationProvider {
   }
 
   User? currentUser() {
-    return user;
+    return _user;
   }
 }
