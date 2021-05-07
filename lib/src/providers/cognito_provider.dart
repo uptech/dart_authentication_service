@@ -3,6 +3,7 @@ import 'package:dart_authentication_service/src/authentication_result.dart';
 import 'package:dart_authentication_service/src/providers/cognito_user.dart';
 import 'package:dart_authentication_service/src/user.dart';
 import 'package:amazon_cognito_identity_dart_2/cognito.dart';
+import 'package:jose/jose.dart';
 
 class CognitoProvider implements AuthenticationProvider {
   CognitoUserImpl? user;
@@ -12,7 +13,20 @@ class CognitoProvider implements AuthenticationProvider {
   CognitoProvider(this._userPoolId, this._clientId);
 
   bool isLoggedIn() {
-    return true;
+    if (user == null) {
+      return false;
+    } else {
+      // we can use the unverified token here because the server should actually verify and no data should be comprimised
+      var jwt = JsonWebToken.unverified(user?.accessToken ?? '');
+      if (jwt.claims.expiry != null) {
+        if (jwt.claims.expiry!.isAfter(DateTime.now())) {
+          return true;
+        }
+      } else {
+        return false;
+      }
+    }
+    return false;
   }
 
   Future<AuthenticationResult> logIn(
