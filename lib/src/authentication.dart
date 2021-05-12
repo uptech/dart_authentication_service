@@ -99,7 +99,6 @@ class Authentication {
     try {
       var result =
           await auth?.verifyUser(user: user, code: code, attribute: attribute);
-
       return result ??
           AuthenticationResult(
               success: false, errors: [AuthenticationError.unknown]);
@@ -112,6 +111,25 @@ class Authentication {
   Future<AuthenticationResult> refreshSession(User user) async {
     try {
       var result = await auth?.refreshSession(user: user);
+      return result ??
+          AuthenticationResult(
+              success: false, errors: [AuthenticationError.unknown]);
+    } catch (error) {
+      return AuthenticationResult(
+          success: false, errors: [AuthenticationError.unknown]);
+    }
+  }
+
+  Future<AuthenticationResult> logOut() async {
+    try {
+      AuthenticationResult? result;
+      if (user != null) {
+        result = await auth?.logOut(user: user!);
+      } else {
+        result = await auth?.logOut();
+      }
+      _removePersistedUser();
+      user = null;
       return result ??
           AuthenticationResult(
               success: false, errors: [AuthenticationError.unknown]);

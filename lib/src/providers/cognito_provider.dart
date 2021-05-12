@@ -13,7 +13,7 @@ class CognitoProvider implements AuthenticationProvider {
 
   Future<AuthenticationResult> isLoggedIn(User user) async {
     if (_hasValidAccessToken(user)) {
-      return AuthenticationResult(success: false, user: user);
+      return AuthenticationResult(success: true, user: user);
     } else {
       return await refreshSession(user: user);
     }
