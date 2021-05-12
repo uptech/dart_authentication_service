@@ -2,14 +2,14 @@
 // in dart_authentication_service/test/authentication_test.dart.
 // Do not manually edit this file.
 
-import 'dart:async' as _i5;
+import 'dart:async' as _i4;
 
 import 'package:dart_authentication_service/src/authentication_result.dart'
     as _i2;
 import 'package:dart_authentication_service/src/providers/cognito_provider.dart'
     as _i3;
-import 'package:dart_authentication_service/src/providers/cognito_user.dart'
-    as _i4;
+import 'package:dart_authentication_service/src/user.dart' as _i5;
+import 'package:hive/hive.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: comment_references
@@ -31,23 +31,22 @@ class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
   }
 
   @override
-  set user(_i4.CognitoUserImpl? _user) =>
-      super.noSuchMethod(Invocation.setter(#user, _user),
-          returnValueForMissingStub: null);
+  _i4.Future<_i2.AuthenticationResult> isLoggedIn(_i5.User? user) =>
+      (super.noSuchMethod(Invocation.method(#isLoggedIn, [user]),
+              returnValue: Future<_i2.AuthenticationResult>.value(
+                  _FakeAuthenticationResult()))
+          as _i4.Future<_i2.AuthenticationResult>);
   @override
-  bool isLoggedIn() => (super.noSuchMethod(Invocation.method(#isLoggedIn, []),
-      returnValue: false) as bool);
-  @override
-  _i5.Future<_i2.AuthenticationResult> logIn(
+  _i4.Future<_i2.AuthenticationResult> logIn(
           {String? username, String? password}) =>
       (super.noSuchMethod(
               Invocation.method(
                   #logIn, [], {#username: username, #password: password}),
               returnValue: Future<_i2.AuthenticationResult>.value(
                   _FakeAuthenticationResult()))
-          as _i5.Future<_i2.AuthenticationResult>);
+          as _i4.Future<_i2.AuthenticationResult>);
   @override
-  _i5.Future<_i2.AuthenticationResult> createUser(
+  _i4.Future<_i2.AuthenticationResult> createUser(
           {String? username,
           String? password,
           Map<String, dynamic>? properties}) =>
@@ -59,5 +58,52 @@ class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
               }),
               returnValue: Future<_i2.AuthenticationResult>.value(
                   _FakeAuthenticationResult()))
-          as _i5.Future<_i2.AuthenticationResult>);
+          as _i4.Future<_i2.AuthenticationResult>);
+  @override
+  _i4.Future<_i2.AuthenticationResult> verifyUser(
+          {_i5.User? user, String? code, String? attribute}) =>
+      (super.noSuchMethod(
+              Invocation.method(#verifyUser, [],
+                  {#user: user, #code: code, #attribute: attribute}),
+              returnValue: Future<_i2.AuthenticationResult>.value(
+                  _FakeAuthenticationResult()))
+          as _i4.Future<_i2.AuthenticationResult>);
+  @override
+  _i4.Future<_i2.AuthenticationResult> refreshSession({_i5.User? user}) =>
+      (super.noSuchMethod(Invocation.method(#refreshSession, [], {#user: user}),
+              returnValue: Future<_i2.AuthenticationResult>.value(
+                  _FakeAuthenticationResult()))
+          as _i4.Future<_i2.AuthenticationResult>);
+  @override
+  _i4.Future<_i2.AuthenticationResult> logOut({_i5.User? user}) =>
+      (super.noSuchMethod(Invocation.method(#logOut, [], {#user: user}),
+              returnValue: Future<_i2.AuthenticationResult>.value(
+                  _FakeAuthenticationResult()))
+          as _i4.Future<_i2.AuthenticationResult>);
+}
+
+/// A class which mocks [Box].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockBox<E> extends _i1.Mock implements _i6.Box<E> {
+  MockBox() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  Iterable<E> get values =>
+      (super.noSuchMethod(Invocation.getter(#values), returnValue: [])
+          as Iterable<E>);
+  @override
+  Iterable<E> valuesBetween({dynamic startKey, dynamic endKey}) =>
+      (super.noSuchMethod(
+          Invocation.method(
+              #valuesBetween, [], {#startKey: startKey, #endKey: endKey}),
+          returnValue: []) as Iterable<E>);
+  @override
+  E? getAt(int? index) =>
+      (super.noSuchMethod(Invocation.method(#getAt, [index])) as E?);
+  @override
+  Map<dynamic, E> toMap() => (super.noSuchMethod(Invocation.method(#toMap, []),
+      returnValue: <dynamic, E>{}) as Map<dynamic, E>);
 }

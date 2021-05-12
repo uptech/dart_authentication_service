@@ -10,6 +10,7 @@ enum AuthenticationError {
 class AuthenticationResult {
   late bool success;
   List<AuthenticationError>? errors = [];
+  User? user;
 
-  AuthenticationResult({required this.success, this.errors});
+  AuthenticationResult({required this.success, this.errors, this.user});
 }
