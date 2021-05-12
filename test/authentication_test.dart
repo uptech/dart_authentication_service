@@ -1,41 +1,56 @@
 import 'package:dart_authentication_service/dart_authentication_service.dart';
 import 'package:dart_authentication_service/src/authentication_result.dart';
+import 'package:hive/hive.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 
 import 'authentication_test.mocks.dart';
 
-@GenerateMocks([CognitoProvider])
+@GenerateMocks([CognitoProvider, Box])
 main() async {
   Authentication authentication = Authentication();
   MockCognitoProvider cognitoProvider = MockCognitoProvider();
+  MockBox box = MockBox();
 
   await authentication.init(cognitoProvider);
+  authentication.box = box;
   group('isLoggedIn()', () {
-    test('calls the providers isLoggedIn method', () {
-      when(cognitoProvider.isLoggedIn()).thenReturn(true);
-      expect(authentication.isLoggedIn(), true);
-    });
-  });
+    test('when user is not in memory it fetches from box', () async {
+      authentication.user = null;
 
-  group('currentUser()', () {
-    test('returns the user when set', () {
-      CognitoUserImpl user = CognitoUserImpl();
-      when(cognitoProvider.currentUser()).thenReturn(user);
-      expect(authentication.currentUser(), user);
+      // these stubs prove the test passes, i.e. if they weren't here it would fail
+      when(box.get('username')).thenReturn('persisted_user');
+      when(box.get('accessToken')).thenReturn('token');
+      when(box.get('refreshToken')).thenReturn('token');
+      when(cognitoProvider.isLoggedIn(any))
+          .thenAnswer((_) async => AuthenticationResult(success: true));
+      await authentication.isLoggedIn();
     });
 
-    test('returns null when not set', () {
-      when(cognitoProvider.currentUser()).thenReturn(null);
-      expect(authentication.currentUser(), null);
+    test('when user is in memory it does not fetch from box', () async {
+      authentication.user = AuthenticationUser();
+
+      when(cognitoProvider.isLoggedIn(any))
+          .thenAnswer((_) async => AuthenticationResult(success: true));
+      await authentication.isLoggedIn();
+    });
+
+    test('calls the providers isLoggedIn method', () async {
+      User user = AuthenticationUser();
+      authentication.user = user;
+      when(cognitoProvider.isLoggedIn(user))
+          .thenAnswer((_) async => AuthenticationResult(success: true));
+      var result = await authentication.isLoggedIn();
+      expect(result.success, true);
     });
   });
 
   group('logIn()', () {
     test('saves user when rememberMe is true', () async {
       when(cognitoProvider.logIn(username: 'myuser', password: 'password'))
-          .thenAnswer((_) async => AuthenticationResult(success: true));
+          .thenAnswer((_) async => AuthenticationResult(
+              success: true, user: AuthenticationUser(username: 'myuser')));
       await authentication.logIn(
           username: 'myuser', password: 'password', rememberMe: true);
       expect(authentication.lastUsername(), 'myuser');
@@ -64,6 +79,26 @@ main() async {
           .thenAnswer((_) async => AuthenticationResult(success: true));
       var result = await authentication.createUser(
           username: 'myuser', password: 'password');
+      expect(result.success, true);
+    });
+  });
+
+  group('verifyUser()', () {
+    test('returns an authentication result object', () async {
+      var user = AuthenticationUser(username: 'foo');
+      when(cognitoProvider.verifyUser(user: user, code: '1234'))
+          .thenAnswer((_) async => AuthenticationResult(success: true));
+      var result = await authentication.verifyUser(user: user, code: '1234');
+      expect(result.success, true);
+    });
+  });
+
+  group('refreshSession()', () {
+    test('returns an authentication result object', () async {
+      var user = AuthenticationUser(username: 'foo');
+      when(cognitoProvider.refreshSession(user: user))
+          .thenAnswer((_) async => AuthenticationResult(success: true));
+      var result = await authentication.refreshSession(user);
       expect(result.success, true);
     });
   });

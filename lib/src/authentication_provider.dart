@@ -2,7 +2,7 @@ import 'package:dart_authentication_service/dart_authentication_service.dart';
 import 'package:dart_authentication_service/src/authentication_result.dart';
 
 abstract class AuthenticationProvider {
-  bool isLoggedIn();
+  Future<AuthenticationResult> isLoggedIn(User user);
   Future<AuthenticationResult> logIn(
       {required String username, required String password});
 
@@ -16,5 +16,5 @@ abstract class AuthenticationProvider {
 
   Future<AuthenticationResult> refreshSession({required User user});
 
-  User? currentUser();
+  Future<AuthenticationResult> logOut({User user});
 }
