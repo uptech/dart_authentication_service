@@ -80,6 +80,11 @@ class Authentication {
       var result = await auth?.createUser(
           username: username, password: password, properties: properties);
 
+      // cache the user so it can be used in the verifyUser step
+      if (result?.success ?? false) {
+        user = result?.user;
+      }
+
       return result ??
           AuthenticationResult(
               success: false, errors: [AuthenticationError.unknown]);

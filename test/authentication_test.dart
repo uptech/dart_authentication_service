@@ -11,21 +11,24 @@ import 'authentication_test.mocks.dart';
 main() async {
   Authentication authentication = Authentication();
   MockCognitoProvider cognitoProvider = MockCognitoProvider();
-  MockBox box = MockBox();
 
   await authentication.init(cognitoProvider);
-  authentication.box = box;
   group('isLoggedIn()', () {
     test('when user is not in memory it fetches from box', () async {
-      authentication.user = null;
+      MockBox box = MockBox();
+      Authentication authWithMockBox = Authentication();
+
+      authWithMockBox.user = null;
+      authWithMockBox.box = box;
 
       // these stubs prove the test passes, i.e. if they weren't here it would fail
       when(box.get('username')).thenReturn('persisted_user');
       when(box.get('accessToken')).thenReturn('token');
       when(box.get('refreshToken')).thenReturn('token');
+
       when(cognitoProvider.isLoggedIn(any))
-          .thenAnswer((_) async => AuthenticationResult(success: true));
-      await authentication.isLoggedIn();
+          .thenAnswer((_) async => AuthenticationResult(success: false));
+      await authWithMockBox.isLoggedIn();
     });
 
     test('when user is in memory it does not fetch from box', () async {
