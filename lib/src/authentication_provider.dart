@@ -17,4 +17,9 @@ abstract class AuthenticationProvider {
   Future<AuthenticationResult> refreshSession({required User user});
 
   Future<AuthenticationResult> logOut({User user});
+
+  Future<AuthenticationResult> requestPasswordReset({required String username});
+
+  Future<AuthenticationResult> setPassword(
+      {required User user, required String code, required String password});
 }

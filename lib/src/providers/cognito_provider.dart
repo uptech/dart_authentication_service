@@ -51,8 +51,16 @@ class CognitoProvider implements AuthenticationProvider {
       session = await cognitoUser.authenticateUser(authDetails);
     } on CognitoClientException catch (e) {
       print(e);
-      return AuthenticationResult(
-          success: false, errors: [AuthenticationError.invalidCredentials]);
+      if (e.code == 'LimitExceededException') {
+        return AuthenticationResult(
+            success: false, errors: [AuthenticationError.rateLimitExceeded]);
+      } else if (e.code == 'UserNotFoundException') {
+        return AuthenticationResult(
+            success: false, errors: [AuthenticationError.invalidCredentials]);
+      } else if (e.code == 'NotAuthorizedException') {
+        return AuthenticationResult(
+            success: false, errors: [AuthenticationError.invalidCredentials]);
+      }
     } catch (e) {
       return AuthenticationResult(
           success: false, errors: [AuthenticationError.unknown]);
@@ -125,5 +133,41 @@ class CognitoProvider implements AuthenticationProvider {
 
   Future<AuthenticationResult> logOut({User? user}) async {
     return AuthenticationResult(success: false);
+  }
+
+  Future<AuthenticationResult> requestPasswordReset(
+      {required String username}) async {
+    try {
+      final userPool = CognitoUserPool(_userPoolId, _clientId);
+
+      final cognitoUser = CognitoUser(username, userPool);
+      await cognitoUser.forgotPassword();
+      CognitoUserImpl user = CognitoUserImpl();
+      user.username = username;
+      return AuthenticationResult(success: true, user: user);
+    } catch (e) {
+      print(e);
+
+      return AuthenticationResult(success: false);
+    }
+  }
+
+  Future<AuthenticationResult> setPassword(
+      {required User user,
+      required String code,
+      required String password}) async {
+    try {
+      final userPool = CognitoUserPool(_userPoolId, _clientId);
+
+      final cognitoUser = CognitoUser(user.username, userPool);
+      final passwordConfirmed =
+          await cognitoUser.confirmPassword(code, password);
+
+      return AuthenticationResult(success: passwordConfirmed);
+    } catch (e) {
+      print(e);
+
+      return AuthenticationResult(success: false);
+    }
   }
 }
