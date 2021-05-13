@@ -120,6 +120,39 @@ class Authentication {
     }
   }
 
+  Future<AuthenticationResult> requestPasswordReset(String username) async {
+    try {
+      var result = await auth?.requestPasswordReset(username: username);
+
+      // cache the user so it can be used in the setPassword step
+      if (result?.success ?? false) {
+        user = result?.user;
+      }
+      return result ??
+          AuthenticationResult(
+              success: false, errors: [AuthenticationError.unknown]);
+    } catch (error) {
+      return AuthenticationResult(
+          success: false, errors: [AuthenticationError.unknown]);
+    }
+  }
+
+  Future<AuthenticationResult> setPassword(
+      {required User user,
+      required String code,
+      required String password}) async {
+    try {
+      var result =
+          await auth?.setPassword(user: user, code: code, password: password);
+      return result ??
+          AuthenticationResult(
+              success: false, errors: [AuthenticationError.unknown]);
+    } catch (error) {
+      return AuthenticationResult(
+          success: false, errors: [AuthenticationError.unknown]);
+    }
+  }
+
   Future<AuthenticationResult> logOut() async {
     try {
       AuthenticationResult? result;

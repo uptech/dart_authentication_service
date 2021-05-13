@@ -4,6 +4,7 @@ enum AuthenticationError {
   invalidPassword,
   invalidUsername,
   invalidCredentials,
+  rateLimitExceeded,
   unknown
 }
 
