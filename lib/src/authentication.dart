@@ -12,8 +12,8 @@ class Authentication {
   final String refreshTokenKey = 'refreshToken';
 
   Future<void> init(
-      {AuthenticationProvider provider,
-      String? hivePath = 'authentication'}) async {
+      {required AuthenticationProvider provider,
+      String hivePath = 'authentication'}) async {
     this.auth = provider;
     Hive.init(hivePath);
     this.box = await Hive.openBox('authentication');
