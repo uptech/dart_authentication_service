@@ -1,9 +1,9 @@
 import 'package:dart_authentication_service/dart_authentication_service.dart';
 import 'package:dart_authentication_service/src/authentication_result.dart';
 import 'package:hive/hive.dart';
-import 'package:test/test.dart';
-import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:test/test.dart';
 
 import 'authentication_test.mocks.dart';
 
@@ -12,7 +12,7 @@ main() async {
   Authentication authentication = Authentication();
   MockCognitoProvider cognitoProvider = MockCognitoProvider();
 
-  await authentication.init(cognitoProvider);
+  await authentication.init(provider: cognitoProvider);
   group('isLoggedIn()', () {
     test('when user is not in memory it fetches from box', () async {
       MockBox box = MockBox();
