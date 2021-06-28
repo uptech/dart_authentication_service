@@ -1,5 +1,6 @@
 import 'package:dart_authentication_service/dart_authentication_service.dart';
 import 'package:dart_authentication_service/src/authentication_result.dart';
+import 'package:dart_authentication_service/src/user_attribute.dart';
 import 'package:hive/hive.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -114,6 +115,85 @@ main() async {
           .thenAnswer((_) async => AuthenticationResult(success: true));
       var result =
           await authentication.resendVerificationCode(email: 'foo@bar.com');
+      expect(result.success, true);
+    });
+  });
+
+  group('userAttributes()', () {
+    test('get user attributes', () async {
+      var user = AuthenticationUser(username: 'foo');
+      when(cognitoProvider.getUserAttributes(user: user))
+          .thenAnswer((_) async => AuthenticationAttributesResult(
+                success: true,
+                attributes: [UserAttribute(name: "Test", value: "Value")],
+              ));
+      var result = await authentication.getUserAttributes(user: user);
+      expect(result.success, true);
+      expect(
+        result.attributes?.first.name,
+        UserAttribute(name: "Test", value: "Value").name,
+      );
+    });
+
+    test('get attribute verification code', () async {
+      var user = AuthenticationUser(username: 'foo');
+      when(cognitoProvider.getAttributeVerificationCode(
+        user: user,
+        attribute: 'email',
+      )).thenAnswer((_) async => AuthenticationAttributesResult(
+            success: true,
+          ));
+      var result = await authentication.getAttributeVerificationCode(
+        user: user,
+        attribute: 'email',
+      );
+      expect(result.success, true);
+    });
+
+    test('verify attribute', () async {
+      var user = AuthenticationUser(username: 'foo');
+      when(cognitoProvider.verifyAttribute(
+        user: user,
+        attribute: 'email',
+        code: '123456',
+      )).thenAnswer((_) async => AuthenticationAttributesResult(
+            success: true,
+          ));
+      var result = await authentication.verifyAttribute(
+        user: user,
+        attribute: 'email',
+        code: '123456',
+      );
+      expect(result.success, true);
+    });
+
+    test('update user attributes', () async {
+      var user = AuthenticationUser(username: 'foo');
+      when(cognitoProvider.updateAttributes(
+        user: user,
+        attributes: {'example:atrtribute': '1234567890'},
+      )).thenAnswer((_) async => AuthenticationAttributesResult(
+            success: true,
+          ));
+      var result = await authentication.updateAttributes(
+        user: user,
+        attributes: {'example:atrtribute': '1234567890'},
+      );
+      expect(result.success, true);
+    });
+
+    test('update user attributes', () async {
+      var user = AuthenticationUser(username: 'foo');
+      when(cognitoProvider.deleteAttributes(
+        user: user,
+        attributes: ['example:atrtribute'],
+      )).thenAnswer((_) async => AuthenticationAttributesResult(
+            success: true,
+          ));
+      var result = await authentication.deleteAttributes(
+        user: user,
+        attributes: ['example:atrtribute'],
+      );
       expect(result.success, true);
     });
   });

@@ -1,8 +1,11 @@
+import 'dart:core';
+
 import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:dart_authentication_service/src/authentication_provider.dart';
 import 'package:dart_authentication_service/src/authentication_result.dart';
 import 'package:dart_authentication_service/src/providers/cognito_user.dart';
 import 'package:dart_authentication_service/src/user.dart';
+import 'package:dart_authentication_service/src/user_attribute.dart';
 import 'package:jose/jose.dart';
 
 class CognitoProvider implements AuthenticationProvider {
@@ -180,6 +183,114 @@ class CognitoProvider implements AuthenticationProvider {
       print(e);
 
       return AuthenticationResult(success: false);
+    }
+  }
+
+  Future<AuthenticationAttributesResult> getUserAttributes({
+    required User user,
+  }) async {
+    try {
+      final userPool = CognitoUserPool(_userPoolId, _clientId);
+      final cognitoUser = CognitoUser(user.username, userPool);
+      var result = await cognitoUser.getUserAttributes();
+      final attributes = result ?? [];
+      return AuthenticationAttributesResult(
+        success: false,
+        attributes: attributes
+            .map((e) => UserAttribute(name: e.name, value: e.value))
+            .toList(),
+        errors: [AuthenticationError.unknown],
+      );
+    } catch (error) {
+      return AuthenticationAttributesResult(
+        success: false,
+        errors: [AuthenticationError.unknown],
+      );
+    }
+  }
+
+  /// Fetches a specific attribute's verification code
+  Future<AuthenticationAttributesResult> getAttributeVerificationCode({
+    required User user,
+    required String attribute,
+  }) async {
+    try {
+      final userPool = CognitoUserPool(_userPoolId, _clientId);
+      final cognitoUser = CognitoUser(user.username, userPool);
+      await cognitoUser.getAttributeVerificationCode(attribute);
+      return AuthenticationAttributesResult(
+        success: true,
+      );
+    } catch (error) {
+      return AuthenticationAttributesResult(
+        success: false,
+        errors: [AuthenticationError.unknown],
+      );
+    }
+  }
+
+  /// Verifies the attribute and code. This is used for verifying a
+  /// phone number or email
+  Future<AuthenticationAttributesResult> verifyAttribute({
+    required User user,
+    required String attribute,
+    required String code,
+  }) async {
+    try {
+      final userPool = CognitoUserPool(_userPoolId, _clientId);
+      final cognitoUser = CognitoUser(user.username, userPool);
+      var result = await cognitoUser.verifyAttribute(attribute, code);
+      return AuthenticationAttributesResult(
+        success: result,
+      );
+    } catch (error) {
+      return AuthenticationAttributesResult(
+        success: false,
+        errors: [AuthenticationError.unknown],
+      );
+    }
+  }
+
+  /// Fetches a specific attribute's verification code
+  Future<AuthenticationAttributesResult> updateAttributes({
+    required User user,
+    required Map<String, dynamic> attributes,
+  }) async {
+    try {
+      final userPool = CognitoUserPool(_userPoolId, _clientId);
+      final cognitoUser = CognitoUser(user.username, userPool);
+      final parsedAttributes = attributes.entries
+          .map((e) => CognitoUserAttribute(name: e.key, value: e.value))
+          .toList();
+      var result = await cognitoUser.updateAttributes(parsedAttributes);
+      return AuthenticationAttributesResult(
+        success: result,
+      );
+    } catch (error) {
+      return AuthenticationAttributesResult(
+        success: false,
+        errors: [AuthenticationError.unknown],
+      );
+    }
+  }
+
+  /// Fetches a specific attribute's verification code
+  Future<AuthenticationAttributesResult> deleteAttributes({
+    required User user,
+    required List<String> attributes,
+  }) async {
+    try {
+      final userPool = CognitoUserPool(_userPoolId, _clientId);
+      final cognitoUser = CognitoUser(user.username, userPool);
+      var result = await cognitoUser.deleteAttributes(attributes);
+      return AuthenticationAttributesResult(
+        success: result,
+      );
+    } catch (error) {
+      return AuthenticationAttributesResult(
+        success: false,
+        errors: [AuthenticationError.unknown],
+      );
     }
   }
 }

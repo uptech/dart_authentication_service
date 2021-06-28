@@ -35,4 +35,35 @@ abstract class AuthenticationProvider {
   // Asigns a new password via the password reset code
   Future<AuthenticationResult> setPassword(
       {required User user, required String code, required String password});
+
+  /// Fetches attributes for a user
+  Future<AuthenticationAttributesResult> getUserAttributes({
+    required User user,
+  });
+
+  /// Fetches a specific attribute's verification code
+  Future<AuthenticationAttributesResult> getAttributeVerificationCode({
+    required User user,
+    required String attribute,
+  });
+
+  /// Verifies the attribute and code. This is used for verifying a
+  /// phone number or email
+  Future<AuthenticationAttributesResult> verifyAttribute({
+    required User user,
+    required String attribute,
+    required String code,
+  });
+
+  /// Fetches a specific attribute's verification code
+  Future<AuthenticationAttributesResult> updateAttributes({
+    required User user,
+    required Map<String, dynamic> attributes,
+  });
+
+  /// Fetches a specific attribute's verification code
+  Future<AuthenticationAttributesResult> deleteAttributes({
+    required User user,
+    required List<String> attributes,
+  });
 }

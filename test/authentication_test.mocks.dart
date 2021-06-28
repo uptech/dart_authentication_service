@@ -22,6 +22,9 @@ import 'package:mockito/mockito.dart' as _i1;
 class _FakeAuthenticationResult extends _i1.Fake
     implements _i2.AuthenticationResult {}
 
+class _FakeAuthenticationAttributesResult extends _i1.Fake
+    implements _i2.AuthenticationAttributesResult {}
+
 /// A class which mocks [CognitoProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -105,6 +108,50 @@ class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
               returnValue: Future<_i2.AuthenticationResult>.value(
                   _FakeAuthenticationResult()))
           as _i4.Future<_i2.AuthenticationResult>);
+  @override
+  _i4.Future<_i2.AuthenticationAttributesResult> getUserAttributes(
+          {_i5.User? user}) =>
+      (super.noSuchMethod(
+              Invocation.method(#getUserAttributes, [], {#user: user}),
+              returnValue: Future<_i2.AuthenticationAttributesResult>.value(
+                  _FakeAuthenticationAttributesResult()))
+          as _i4.Future<_i2.AuthenticationAttributesResult>);
+  @override
+  _i4.Future<_i2.AuthenticationAttributesResult> getAttributeVerificationCode(
+          {_i5.User? user, String? attribute}) =>
+      (super.noSuchMethod(
+              Invocation.method(#getAttributeVerificationCode, [],
+                  {#user: user, #attribute: attribute}),
+              returnValue: Future<_i2.AuthenticationAttributesResult>.value(
+                  _FakeAuthenticationAttributesResult()))
+          as _i4.Future<_i2.AuthenticationAttributesResult>);
+  @override
+  _i4.Future<_i2.AuthenticationAttributesResult> verifyAttribute(
+          {_i5.User? user, String? attribute, String? code}) =>
+      (super.noSuchMethod(
+              Invocation.method(#verifyAttribute, [],
+                  {#user: user, #attribute: attribute, #code: code}),
+              returnValue: Future<_i2.AuthenticationAttributesResult>.value(
+                  _FakeAuthenticationAttributesResult()))
+          as _i4.Future<_i2.AuthenticationAttributesResult>);
+  @override
+  _i4.Future<_i2.AuthenticationAttributesResult> updateAttributes(
+          {_i5.User? user, Map<String, dynamic>? attributes}) =>
+      (super.noSuchMethod(
+          Invocation.method(
+              #updateAttributes, [], {#user: user, #attributes: attributes}),
+          returnValue: Future<_i2.AuthenticationAttributesResult>.value(
+              _FakeAuthenticationAttributesResult())) as _i4
+          .Future<_i2.AuthenticationAttributesResult>);
+  @override
+  _i4.Future<_i2.AuthenticationAttributesResult> deleteAttributes(
+          {_i5.User? user, List<String>? attributes}) =>
+      (super.noSuchMethod(
+          Invocation.method(
+              #deleteAttributes, [], {#user: user, #attributes: attributes}),
+          returnValue: Future<_i2.AuthenticationAttributesResult>.value(
+              _FakeAuthenticationAttributesResult())) as _i4
+          .Future<_i2.AuthenticationAttributesResult>);
 }
 
 /// A class which mocks [Box].
