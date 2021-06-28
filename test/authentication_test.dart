@@ -105,4 +105,16 @@ main() async {
       expect(result.success, true);
     });
   });
+
+  group('resentVerificationCode()', () {
+    test(
+        'sends a new verification code and returns an authentication result object',
+        () async {
+      when(cognitoProvider.resendVerificationCode(email: 'foo@bar.com'))
+          .thenAnswer((_) async => AuthenticationResult(success: true));
+      var result =
+          await authentication.resendVerificationCode(email: 'foo@bar.com');
+      expect(result.success, true);
+    });
+  });
 }

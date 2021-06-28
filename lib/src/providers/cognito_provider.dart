@@ -1,8 +1,8 @@
+import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:dart_authentication_service/src/authentication_provider.dart';
 import 'package:dart_authentication_service/src/authentication_result.dart';
 import 'package:dart_authentication_service/src/providers/cognito_user.dart';
 import 'package:dart_authentication_service/src/user.dart';
-import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:jose/jose.dart';
 
 class CognitoProvider implements AuthenticationProvider {
@@ -95,6 +95,18 @@ class CognitoProvider implements AuthenticationProvider {
     } catch (e) {
       print(e);
 
+      return AuthenticationResult(success: false);
+    }
+  }
+
+  Future<AuthenticationResult> resendVerificationCode(
+      {required String email}) async {
+    try {
+      final userPool = CognitoUserPool(_userPoolId, _clientId);
+      final cognitoUser = CognitoUser(email, userPool);
+      await cognitoUser.resendConfirmationCode();
+      return AuthenticationResult(success: true);
+    } catch (e) {
       return AuthenticationResult(success: false);
     }
   }

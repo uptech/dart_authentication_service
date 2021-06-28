@@ -60,6 +60,14 @@ class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
                   _FakeAuthenticationResult()))
           as _i4.Future<_i2.AuthenticationResult>);
   @override
+  _i4.Future<_i2.AuthenticationResult> resendVerificationCode(
+          {String? email}) =>
+      (super.noSuchMethod(
+              Invocation.method(#resendVerificationCode, [], {#email: email}),
+              returnValue: Future<_i2.AuthenticationResult>.value(
+                  _FakeAuthenticationResult()))
+          as _i4.Future<_i2.AuthenticationResult>);
+  @override
   _i4.Future<_i2.AuthenticationResult> verifyUser(
           {_i5.User? user, String? code, String? attribute}) =>
       (super.noSuchMethod(
@@ -77,6 +85,23 @@ class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
   @override
   _i4.Future<_i2.AuthenticationResult> logOut({_i5.User? user}) =>
       (super.noSuchMethod(Invocation.method(#logOut, [], {#user: user}),
+              returnValue: Future<_i2.AuthenticationResult>.value(
+                  _FakeAuthenticationResult()))
+          as _i4.Future<_i2.AuthenticationResult>);
+  @override
+  _i4.Future<_i2.AuthenticationResult> requestPasswordReset(
+          {String? username}) =>
+      (super.noSuchMethod(
+          Invocation.method(#requestPasswordReset, [], {#username: username}),
+          returnValue: Future<_i2.AuthenticationResult>.value(
+              _FakeAuthenticationResult())) as _i4
+          .Future<_i2.AuthenticationResult>);
+  @override
+  _i4.Future<_i2.AuthenticationResult> setPassword(
+          {_i5.User? user, String? code, String? password}) =>
+      (super.noSuchMethod(
+              Invocation.method(#setPassword, [],
+                  {#user: user, #code: code, #password: password}),
               returnValue: Future<_i2.AuthenticationResult>.value(
                   _FakeAuthenticationResult()))
           as _i4.Future<_i2.AuthenticationResult>);

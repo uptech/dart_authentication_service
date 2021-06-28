@@ -96,6 +96,23 @@ class Authentication {
     }
   }
 
+  Future<AuthenticationResult> resendVerificationCode(
+      {required String email}) async {
+    try {
+      var result = await auth?.resendVerificationCode(email: email);
+      return result ??
+          AuthenticationResult(
+            success: false,
+            errors: [AuthenticationError.unknown],
+          );
+    } catch (error) {
+      return AuthenticationResult(
+        success: false,
+        errors: [AuthenticationError.unknown],
+      );
+    }
+  }
+
   Future<AuthenticationResult> verifyUser(
       {required User user, required String code, String? attribute}) async {
     try {
