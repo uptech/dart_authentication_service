@@ -6,4 +6,5 @@ class CognitoUserImpl implements User {
   String? name;
   String? accessToken;
   String? refreshToken;
+  Map<String, dynamic>? customProperties;
 }

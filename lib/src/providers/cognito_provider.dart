@@ -69,6 +69,13 @@ class CognitoProvider implements AuthenticationProvider {
     user.username = username;
     user.refreshToken = session?.getRefreshToken()?.getToken();
     user.accessToken = session?.getAccessToken().getJwtToken();
+
+    List<CognitoUserAttribute>? attrs = await cognitoUser.getUserAttributes();
+    user.customProperties = Map<String, dynamic>();
+    attrs?.forEach((element) {
+      user.customProperties!.putIfAbsent(element.name!, () => element.value);
+    });
+
     return AuthenticationResult(success: true, user: user);
   }
 
@@ -91,6 +98,13 @@ class CognitoProvider implements AuthenticationProvider {
       );
       CognitoUserImpl user = CognitoUserImpl();
       user.username = username;
+
+      List<CognitoUserAttribute>? attrs = await data.user.getUserAttributes();
+      user.customProperties = Map<String, dynamic>();
+      attrs?.forEach((element) {
+        user.customProperties!.putIfAbsent(element.name!, () => element.value);
+      });
+
       return AuthenticationResult(success: true, user: user);
     } catch (e) {
       print(e);

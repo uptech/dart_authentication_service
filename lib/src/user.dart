@@ -4,6 +4,7 @@ abstract class User {
   String? name;
   String? accessToken;
   String? refreshToken;
+  Map<String, dynamic>? customProperties;
 }
 
 class AuthenticationUser implements User {
@@ -12,10 +13,13 @@ class AuthenticationUser implements User {
   String? name;
   String? accessToken;
   String? refreshToken;
+  Map<String, dynamic>? customProperties;
+
   AuthenticationUser(
       {this.username,
       this.password,
       this.name,
       this.accessToken,
-      this.refreshToken}) {}
+      this.refreshToken,
+      this.customProperties}) {}
 }
