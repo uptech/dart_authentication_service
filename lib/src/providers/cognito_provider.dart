@@ -192,14 +192,15 @@ class CognitoProvider implements AuthenticationProvider {
     try {
       final userPool = CognitoUserPool(_userPoolId, _clientId);
       final cognitoUser = CognitoUser(user.username, userPool);
-      var result = await cognitoUser.getUserAttributes();
+      final result = await cognitoUser
+          .getSession()
+          .then((value) => cognitoUser.getUserAttributes());
       final attributes = result ?? [];
       return AuthenticationAttributesResult(
-        success: false,
+        success: true,
         attributes: attributes
             .map((e) => UserAttribute(name: e.name, value: e.value))
             .toList(),
-        errors: [AuthenticationError.unknown],
       );
     } catch (error) {
       return AuthenticationAttributesResult(
@@ -217,7 +218,9 @@ class CognitoProvider implements AuthenticationProvider {
     try {
       final userPool = CognitoUserPool(_userPoolId, _clientId);
       final cognitoUser = CognitoUser(user.username, userPool);
-      await cognitoUser.getAttributeVerificationCode(attribute);
+      await cognitoUser
+          .getSession()
+          .then((value) => cognitoUser.getAttributeVerificationCode(attribute));
       return AuthenticationAttributesResult(
         success: true,
       );
@@ -239,7 +242,9 @@ class CognitoProvider implements AuthenticationProvider {
     try {
       final userPool = CognitoUserPool(_userPoolId, _clientId);
       final cognitoUser = CognitoUser(user.username, userPool);
-      var result = await cognitoUser.verifyAttribute(attribute, code);
+      final result = await cognitoUser
+          .getSession()
+          .then((value) => cognitoUser.verifyAttribute(attribute, code));
       return AuthenticationAttributesResult(
         success: result,
       );
@@ -262,7 +267,9 @@ class CognitoProvider implements AuthenticationProvider {
       final parsedAttributes = attributes.entries
           .map((e) => CognitoUserAttribute(name: e.key, value: e.value))
           .toList();
-      var result = await cognitoUser.updateAttributes(parsedAttributes);
+      final result = await cognitoUser
+          .getSession()
+          .then((value) => cognitoUser.updateAttributes(parsedAttributes));
       return AuthenticationAttributesResult(
         success: result,
       );
@@ -282,7 +289,9 @@ class CognitoProvider implements AuthenticationProvider {
     try {
       final userPool = CognitoUserPool(_userPoolId, _clientId);
       final cognitoUser = CognitoUser(user.username, userPool);
-      var result = await cognitoUser.deleteAttributes(attributes);
+      final result = await cognitoUser
+          .getSession()
+          .then((value) => cognitoUser.deleteAttributes(attributes));
       return AuthenticationAttributesResult(
         success: result,
       );
