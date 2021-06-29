@@ -36,6 +36,14 @@ abstract class AuthenticationProvider {
   Future<AuthenticationResult> setPassword(
       {required User user, required String code, required String password});
 
+  /// Asigns a new password to a user. Both the oldPassword and the newPassword
+  /// are required.
+  Future<AuthenticationResult> changePassword({
+    required User user,
+    required String oldPassword,
+    required String newPassword,
+  });
+
   /// Fetches attributes for a user
   Future<AuthenticationAttributesResult> getUserAttributes({
     required User user,

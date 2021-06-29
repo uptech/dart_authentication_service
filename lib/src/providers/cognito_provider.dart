@@ -186,6 +186,26 @@ class CognitoProvider implements AuthenticationProvider {
     }
   }
 
+  // Asigns a new password via the password reset code
+  Future<AuthenticationResult> changePassword({
+    required User user,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final userPool = CognitoUserPool(_userPoolId, _clientId);
+      final cognitoUser = CognitoUser(user.username, userPool);
+      final result = await cognitoUser.getSession().then(
+          (value) => cognitoUser.changePassword(oldPassword, newPassword));
+
+      return AuthenticationResult(success: result);
+    } catch (e) {
+      print(e);
+
+      return AuthenticationResult(success: false);
+    }
+  }
+
   Future<AuthenticationAttributesResult> getUserAttributes({
     required User user,
   }) async {

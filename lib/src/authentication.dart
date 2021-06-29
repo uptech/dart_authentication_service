@@ -172,6 +172,31 @@ class Authentication {
     }
   }
 
+  // Asigns a new password via the password reset code
+  Future<AuthenticationResult> changePassword({
+    required User user,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      var result = await auth?.changePassword(
+        user: user,
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      );
+      return result ??
+          AuthenticationResult(
+            success: false,
+            errors: [AuthenticationError.unknown],
+          );
+    } catch (error) {
+      return AuthenticationResult(
+        success: false,
+        errors: [AuthenticationError.unknown],
+      );
+    }
+  }
+
   Future<AuthenticationResult> logOut() async {
     try {
       AuthenticationResult? result;

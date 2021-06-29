@@ -119,6 +119,23 @@ main() async {
     });
   });
 
+  group('changeUserPassword()', () {
+    test('changes the current users password', () async {
+      var user = AuthenticationUser(username: 'foo');
+      when(cognitoProvider.changePassword(
+        user: user,
+        oldPassword: '000000',
+        newPassword: '111222',
+      )).thenAnswer((_) async => AuthenticationResult(success: true));
+      var result = await authentication.changePassword(
+        user: user,
+        oldPassword: '000000',
+        newPassword: '111222',
+      );
+      expect(result.success, true);
+    });
+  });
+
   group('userAttributes()', () {
     test('get user attributes', () async {
       var user = AuthenticationUser(username: 'foo');

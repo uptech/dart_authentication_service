@@ -109,6 +109,18 @@ class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
                   _FakeAuthenticationResult()))
           as _i4.Future<_i2.AuthenticationResult>);
   @override
+  _i4.Future<_i2.AuthenticationResult> changePassword(
+          {_i5.User? user, String? oldPassword, String? newPassword}) =>
+      (super.noSuchMethod(
+              Invocation.method(#changePassword, [], {
+                #user: user,
+                #oldPassword: oldPassword,
+                #newPassword: newPassword
+              }),
+              returnValue: Future<_i2.AuthenticationResult>.value(
+                  _FakeAuthenticationResult()))
+          as _i4.Future<_i2.AuthenticationResult>);
+  @override
   _i4.Future<_i2.AuthenticationAttributesResult> getUserAttributes(
           {_i5.User? user}) =>
       (super.noSuchMethod(
