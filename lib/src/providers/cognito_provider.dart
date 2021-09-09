@@ -1,18 +1,17 @@
 import 'dart:core';
 
-import 'package:amazon_cognito_identity_dart_2/cognito.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:amplify_flutter/amplify.dart';
 import 'package:dart_authentication_service/src/authentication_provider.dart';
 import 'package:dart_authentication_service/src/authentication_result.dart';
 import 'package:dart_authentication_service/src/providers/cognito_user.dart';
 import 'package:dart_authentication_service/src/user.dart';
-import 'package:dart_authentication_service/src/user_attribute.dart';
 import 'package:jose/jose.dart';
 
 class CognitoProvider implements AuthenticationProvider {
-  String _userPoolId;
-  String _clientId;
-
-  CognitoProvider(this._userPoolId, this._clientId);
+  CognitoProvider() {
+    Amplify.addPlugin(AmplifyAuthCognito());
+  }
 
   Future<AuthenticationResult> isLoggedIn(User user) async {
     if (_hasValidAccessToken(user)) {
@@ -40,123 +39,134 @@ class CognitoProvider implements AuthenticationProvider {
     return false;
   }
 
-  Future<AuthenticationResult> logIn(
-      {required String username, required String password}) async {
-    final userPool = CognitoUserPool(_userPoolId, _clientId);
-
-    final cognitoUser = CognitoUser(username, userPool);
-    final authDetails = AuthenticationDetails(
-      username: username,
-      password: password,
-    );
-    CognitoUserSession? session;
+  Future<AuthenticationResult> logIn({
+    required String username,
+    required String password,
+  }) async {
     try {
-      session = await cognitoUser.authenticateUser(authDetails);
-    } on CognitoClientException catch (e) {
-      print(e);
-      if (e.code == 'LimitExceededException') {
+      SignInResult signInResult = await Amplify.Auth.signIn(
+        username: username,
+        password: password,
+      );
+      AuthSession authSessionResult = await Amplify.Auth.fetchAuthSession(
+        options: CognitoSessionOptions(getAWSCredentials: true),
+      );
+      if (signInResult.isSignedIn && authSessionResult.isSignedIn) {
+        final session = authSessionResult as CognitoAuthSession;
+        CognitoUserImpl cognitoUser = _userFromSession(
+          session: session,
+          username: username,
+        );
+        return AuthenticationResult(success: true, user: cognitoUser);
+      } else {
         return AuthenticationResult(
-            success: false, errors: [AuthenticationError.rateLimitExceeded]);
-      } else if (e.code == 'UserNotFoundException') {
-        return AuthenticationResult(
-            success: false, errors: [AuthenticationError.invalidCredentials]);
-      } else if (e.code == 'NotAuthorizedException') {
-        return AuthenticationResult(
-            success: false, errors: [AuthenticationError.invalidCredentials]);
+          success: false,
+          errors: [AuthenticationError.couldNotSignIn],
+        );
       }
+    } on AuthException {
+      rethrow;
     } catch (e) {
       return AuthenticationResult(
-          success: false, errors: [AuthenticationError.unknown]);
+        success: false,
+        errors: [AuthenticationError.unknown],
+      );
     }
-    CognitoUserImpl user = CognitoUserImpl();
-    user.username = username;
-    user.refreshToken = session?.getRefreshToken()?.getToken();
-    user.accessToken = session?.getAccessToken().getJwtToken();
-    return AuthenticationResult(success: true, user: user);
   }
 
-  Future<AuthenticationResult> createUser(
-      {required String username,
-      required String password,
-      Map<String, dynamic>? properties}) async {
-    final userPool = CognitoUserPool(_userPoolId, _clientId);
-    List<AttributeArg> userAttributes = [];
-    properties?.forEach((key, value) {
-      userAttributes.add(AttributeArg(name: key, value: value));
-    });
-
-    var data;
+  Future<AuthenticationResult> createUser({
+    required String username,
+    required String password,
+    Map<String, String>? properties,
+  }) async {
     try {
-      data = await userPool.signUp(
-        username,
-        password,
-        userAttributes: userAttributes,
+      await Amplify.Auth.signUp(
+        username: username,
+        password: password,
+        options: CognitoSignUpOptions(userAttributes: properties ?? {}),
       );
       CognitoUserImpl user = CognitoUserImpl();
       user.username = username;
       return AuthenticationResult(success: true, user: user);
+    } on AuthException {
+      rethrow;
     } catch (e) {
       print(e);
-
       return AuthenticationResult(success: false);
     }
   }
 
-  Future<AuthenticationResult> resendVerificationCode(
-      {required String email}) async {
+  Future<AuthenticationResult> resendVerificationCode({
+    required String username,
+  }) async {
     try {
-      final userPool = CognitoUserPool(_userPoolId, _clientId);
-      final cognitoUser = CognitoUser(email, userPool);
-      await cognitoUser.resendConfirmationCode();
+      await Amplify.Auth.resendSignUpCode(username: username);
       return AuthenticationResult(success: true);
     } catch (e) {
       return AuthenticationResult(success: false);
     }
   }
 
-  Future<AuthenticationResult> verifyUser(
-      {required User user, required String code, String? attribute}) async {
+  Future<AuthenticationResult> verifyUser({
+    required User user,
+    required String code,
+  }) async {
     try {
-      final userPool = CognitoUserPool(_userPoolId, _clientId);
-      final cognitoUser = CognitoUser(user.username, userPool);
-      await cognitoUser.confirmRegistration(code);
+      await Amplify.Auth.confirmSignUp(
+        username: user.username ?? '',
+        confirmationCode: code,
+      );
       return AuthenticationResult(success: true);
     } catch (e) {
       print(e);
-
       return AuthenticationResult(success: false);
     }
   }
 
-  Future<AuthenticationResult> refreshSession({required User user}) async {
+  Future<AuthenticationResult> refreshSession({
+    required User user,
+  }) async {
     try {
-      final userPool = CognitoUserPool(_userPoolId, _clientId);
-      final refreshToken = CognitoRefreshToken(user.refreshToken);
-      final cognitoUser = CognitoUser(user.username, userPool);
-      final session = await cognitoUser.refreshSession(refreshToken);
-      CognitoUserImpl updatedUser = CognitoUserImpl();
-      updatedUser.username = cognitoUser.username;
-      updatedUser.refreshToken = session?.getRefreshToken()?.getToken();
-      updatedUser.accessToken = session?.getAccessToken().getJwtToken();
-      return AuthenticationResult(success: true, user: updatedUser);
+      AuthSession authSessionResult = await Amplify.Auth.fetchAuthSession(
+        options: CognitoSessionOptions(getAWSCredentials: true),
+      );
+      if (authSessionResult.isSignedIn) {
+        final session = authSessionResult as CognitoAuthSession;
+        CognitoUserImpl cognitoUser = _userFromSession(
+          session: session,
+          username: user.username,
+        );
+        return AuthenticationResult(success: true, user: cognitoUser);
+      } else {
+        return AuthenticationResult(
+          success: false,
+          errors: [AuthenticationError.couldNotSignIn],
+        );
+      }
     } catch (e) {
       print(e);
+      return AuthenticationResult(
+        success: false,
+        errors: [AuthenticationError.unknown],
+      );
+    }
+  }
 
+  Future<AuthenticationResult> logOut() async {
+    try {
+      Amplify.Auth.signOut();
+      return AuthenticationResult(success: true);
+    } on AuthException catch (e) {
+      print(e.message);
       return AuthenticationResult(success: false);
     }
   }
 
-  Future<AuthenticationResult> logOut({User? user}) async {
-    return AuthenticationResult(success: false);
-  }
-
-  Future<AuthenticationResult> requestPasswordReset(
-      {required String username}) async {
+  Future<AuthenticationResult> requestPasswordReset({
+    required String username,
+  }) async {
     try {
-      final userPool = CognitoUserPool(_userPoolId, _clientId);
-
-      final cognitoUser = CognitoUser(username, userPool);
-      await cognitoUser.forgotPassword();
+      await Amplify.Auth.resetPassword(username: username);
       CognitoUserImpl user = CognitoUserImpl();
       user.username = username;
       return AuthenticationResult(success: true, user: user);
@@ -167,18 +177,18 @@ class CognitoProvider implements AuthenticationProvider {
     }
   }
 
-  Future<AuthenticationResult> setPassword(
-      {required User user,
-      required String code,
-      required String password}) async {
+  Future<AuthenticationResult> setPassword({
+    required User user,
+    required String code,
+    required String password,
+  }) async {
     try {
-      final userPool = CognitoUserPool(_userPoolId, _clientId);
-
-      final cognitoUser = CognitoUser(user.username, userPool);
-      final passwordConfirmed =
-          await cognitoUser.confirmPassword(code, password);
-
-      return AuthenticationResult(success: passwordConfirmed);
+      await Amplify.Auth.confirmPassword(
+        username: user.username ?? '',
+        newPassword: password,
+        confirmationCode: code,
+      );
+      return AuthenticationResult(success: true);
     } catch (e) {
       print(e);
 
@@ -193,36 +203,31 @@ class CognitoProvider implements AuthenticationProvider {
     required String newPassword,
   }) async {
     try {
-      final userPool = CognitoUserPool(_userPoolId, _clientId);
-      final cognitoUser = CognitoUser(user.username, userPool);
-      final result = await cognitoUser.getSession().then(
-          (value) => cognitoUser.changePassword(oldPassword, newPassword));
-
-      return AuthenticationResult(success: result);
-    } catch (e) {
+      await Amplify.Auth.updatePassword(
+        newPassword: newPassword,
+        oldPassword: oldPassword,
+      );
+      return AuthenticationResult(success: true);
+    } on AmplifyException catch (e) {
       print(e);
-
       return AuthenticationResult(success: false);
     }
   }
 
-  Future<AuthenticationAttributesResult> getUserAttributes({
-    required User user,
-  }) async {
+  Future<AuthenticationAttributesResult> getUserAttributes() async {
     try {
-      final userPool = CognitoUserPool(_userPoolId, _clientId);
-      final cognitoUser = CognitoUser(user.username, userPool);
-      final result = await cognitoUser
-          .getSession()
-          .then((value) => cognitoUser.getUserAttributes());
-      final attributes = result ?? [];
+      List<AuthUserAttribute> result = await Amplify.Auth.fetchUserAttributes();
+      Map<String, String> attributes = Map.fromIterable(
+        result,
+        key: (v) => v.userAttributeKey,
+        value: (v) => v.value,
+      );
       return AuthenticationAttributesResult(
         success: true,
-        attributes: attributes
-            .map((e) => UserAttribute(name: e.name, value: e.value))
-            .toList(),
+        attributes: attributes,
       );
-    } catch (error) {
+    } on AuthException catch (e) {
+      print(e.message);
       return AuthenticationAttributesResult(
         success: false,
         errors: [AuthenticationError.unknown],
@@ -232,19 +237,19 @@ class CognitoProvider implements AuthenticationProvider {
 
   /// Fetches a specific attribute's verification code
   Future<AuthenticationAttributesResult> getAttributeVerificationCode({
-    required User user,
     required String attribute,
   }) async {
     try {
-      final userPool = CognitoUserPool(_userPoolId, _clientId);
-      final cognitoUser = CognitoUser(user.username, userPool);
-      await cognitoUser
-          .getSession()
-          .then((value) => cognitoUser.getAttributeVerificationCode(attribute));
+      var res = await Amplify.Auth.resendUserAttributeConfirmationCode(
+        userAttributeKey: attribute,
+      );
+      var destination = res.codeDeliveryDetails.destination;
+      print('Confirmation code set to $destination');
       return AuthenticationAttributesResult(
         success: true,
       );
-    } catch (error) {
+    } on AmplifyException catch (e) {
+      print(e.message);
       return AuthenticationAttributesResult(
         success: false,
         errors: [AuthenticationError.unknown],
@@ -255,20 +260,17 @@ class CognitoProvider implements AuthenticationProvider {
   /// Verifies the attribute and code. This is used for verifying a
   /// phone number or email
   Future<AuthenticationAttributesResult> verifyAttribute({
-    required User user,
     required String attribute,
     required String code,
   }) async {
     try {
-      final userPool = CognitoUserPool(_userPoolId, _clientId);
-      final cognitoUser = CognitoUser(user.username, userPool);
-      final result = await cognitoUser
-          .getSession()
-          .then((value) => cognitoUser.verifyAttribute(attribute, code));
-      return AuthenticationAttributesResult(
-        success: result,
+      await Amplify.Auth.confirmUserAttribute(
+        userAttributeKey: attribute,
+        confirmationCode: code,
       );
-    } catch (error) {
+      return AuthenticationAttributesResult(success: true);
+    } on AmplifyException catch (e) {
+      print(e);
       return AuthenticationAttributesResult(
         success: false,
         errors: [AuthenticationError.unknown],
@@ -278,48 +280,49 @@ class CognitoProvider implements AuthenticationProvider {
 
   /// Fetches a specific attribute's verification code
   Future<AuthenticationAttributesResult> updateAttributes({
-    required User user,
     required Map<String, dynamic> attributes,
   }) async {
+    final attributeList = attributes.entries
+        .map((e) => AuthUserAttribute(userAttributeKey: e.key, value: e.value))
+        .toList();
     try {
-      final userPool = CognitoUserPool(_userPoolId, _clientId);
-      final cognitoUser = CognitoUser(user.username, userPool);
-      final parsedAttributes = attributes.entries
-          .map((e) => CognitoUserAttribute(name: e.key, value: e.value))
-          .toList();
-      final result = await cognitoUser
-          .getSession()
-          .then((value) => cognitoUser.updateAttributes(parsedAttributes));
+      var res =
+          await Amplify.Auth.updateUserAttributes(attributes: attributeList);
+      String nextStep = res.entries
+          .map((e) {
+            if (e.value.nextStep.updateAttributeStep ==
+                'CONFIRM_ATTRIBUTE_WITH_CODE') {
+              var destination =
+                  e.value.nextStep.codeDeliveryDetails?.destination;
+              return 'Confirmation code sent to $destination for ${e.key}';
+            } else {
+              return 'Update completed for ${e.key}';
+            }
+          })
+          .toList()
+          .join(', ');
       return AuthenticationAttributesResult(
-        success: result,
+        success: true,
+        nextStep: nextStep,
       );
-    } catch (error) {
+    } on AmplifyException catch (e) {
+      print(e.message);
       return AuthenticationAttributesResult(
         success: false,
-        errors: [AuthenticationError.unknown],
       );
     }
   }
 
-  /// Fetches a specific attribute's verification code
-  Future<AuthenticationAttributesResult> deleteAttributes({
-    required User user,
-    required List<String> attributes,
-  }) async {
-    try {
-      final userPool = CognitoUserPool(_userPoolId, _clientId);
-      final cognitoUser = CognitoUser(user.username, userPool);
-      final result = await cognitoUser
-          .getSession()
-          .then((value) => cognitoUser.deleteAttributes(attributes));
-      return AuthenticationAttributesResult(
-        success: result,
-      );
-    } catch (error) {
-      return AuthenticationAttributesResult(
-        success: false,
-        errors: [AuthenticationError.unknown],
-      );
-    }
+  CognitoUserImpl _userFromSession({
+    required CognitoAuthSession session,
+    String? username,
+  }) {
+    CognitoUserImpl user = CognitoUserImpl();
+    user.username = username;
+    user.refreshToken = session.userPoolTokens?.refreshToken;
+    user.accessToken = session.userPoolTokens?.accessToken;
+    user.idToken = session.userPoolTokens?.idToken;
+    user.id = session.userSub;
+    return user;
   }
 }

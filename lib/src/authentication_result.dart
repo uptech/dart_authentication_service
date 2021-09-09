@@ -1,11 +1,9 @@
 import 'package:dart_authentication_service/src/user.dart';
-import 'package:dart_authentication_service/src/user_attribute.dart';
 
 enum AuthenticationError {
   invalidPassword,
   invalidUsername,
-  invalidCredentials,
-  rateLimitExceeded,
+  couldNotSignIn,
   unknown
 }
 
@@ -19,9 +17,14 @@ class AuthenticationResult {
 
 class AuthenticationAttributesResult {
   late bool success;
+  late String? nextStep;
   List<AuthenticationError>? errors = [];
-  List<UserAttribute>? attributes;
+  Map<String, String>? attributes;
 
-  AuthenticationAttributesResult(
-      {required this.success, this.errors, this.attributes});
+  AuthenticationAttributesResult({
+    required this.success,
+    this.nextStep,
+    this.errors,
+    this.attributes,
+  });
 }

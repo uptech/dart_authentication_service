@@ -52,7 +52,7 @@ class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
   _i4.Future<_i2.AuthenticationResult> createUser(
           {String? username,
           String? password,
-          Map<String, dynamic>? properties}) =>
+          Map<String, String>? properties}) =>
       (super.noSuchMethod(
               Invocation.method(#createUser, [], {
                 #username: username,
@@ -64,18 +64,17 @@ class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
           as _i4.Future<_i2.AuthenticationResult>);
   @override
   _i4.Future<_i2.AuthenticationResult> resendVerificationCode(
-          {String? email}) =>
+          {String? username}) =>
       (super.noSuchMethod(
-              Invocation.method(#resendVerificationCode, [], {#email: email}),
-              returnValue: Future<_i2.AuthenticationResult>.value(
-                  _FakeAuthenticationResult()))
-          as _i4.Future<_i2.AuthenticationResult>);
+          Invocation.method(#resendVerificationCode, [], {#username: username}),
+          returnValue: Future<_i2.AuthenticationResult>.value(
+              _FakeAuthenticationResult())) as _i4
+          .Future<_i2.AuthenticationResult>);
   @override
   _i4.Future<_i2.AuthenticationResult> verifyUser(
-          {_i5.User? user, String? code, String? attribute}) =>
+          {_i5.User? user, String? code}) =>
       (super.noSuchMethod(
-              Invocation.method(#verifyUser, [],
-                  {#user: user, #code: code, #attribute: attribute}),
+              Invocation.method(#verifyUser, [], {#user: user, #code: code}),
               returnValue: Future<_i2.AuthenticationResult>.value(
                   _FakeAuthenticationResult()))
           as _i4.Future<_i2.AuthenticationResult>);
@@ -86,8 +85,8 @@ class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
                   _FakeAuthenticationResult()))
           as _i4.Future<_i2.AuthenticationResult>);
   @override
-  _i4.Future<_i2.AuthenticationResult> logOut({_i5.User? user}) =>
-      (super.noSuchMethod(Invocation.method(#logOut, [], {#user: user}),
+  _i4.Future<_i2.AuthenticationResult> logOut() =>
+      (super.noSuchMethod(Invocation.method(#logOut, []),
               returnValue: Future<_i2.AuthenticationResult>.value(
                   _FakeAuthenticationResult()))
           as _i4.Future<_i2.AuthenticationResult>);
@@ -121,46 +120,34 @@ class MockCognitoProvider extends _i1.Mock implements _i3.CognitoProvider {
                   _FakeAuthenticationResult()))
           as _i4.Future<_i2.AuthenticationResult>);
   @override
-  _i4.Future<_i2.AuthenticationAttributesResult> getUserAttributes(
-          {_i5.User? user}) =>
-      (super.noSuchMethod(
-              Invocation.method(#getUserAttributes, [], {#user: user}),
+  _i4.Future<_i2.AuthenticationAttributesResult> getUserAttributes() =>
+      (super.noSuchMethod(Invocation.method(#getUserAttributes, []),
               returnValue: Future<_i2.AuthenticationAttributesResult>.value(
                   _FakeAuthenticationAttributesResult()))
           as _i4.Future<_i2.AuthenticationAttributesResult>);
   @override
   _i4.Future<_i2.AuthenticationAttributesResult> getAttributeVerificationCode(
-          {_i5.User? user, String? attribute}) =>
+          {String? attribute}) =>
       (super.noSuchMethod(
-              Invocation.method(#getAttributeVerificationCode, [],
-                  {#user: user, #attribute: attribute}),
+              Invocation.method(
+                  #getAttributeVerificationCode, [], {#attribute: attribute}),
               returnValue: Future<_i2.AuthenticationAttributesResult>.value(
                   _FakeAuthenticationAttributesResult()))
           as _i4.Future<_i2.AuthenticationAttributesResult>);
   @override
   _i4.Future<_i2.AuthenticationAttributesResult> verifyAttribute(
-          {_i5.User? user, String? attribute, String? code}) =>
+          {String? attribute, String? code}) =>
       (super.noSuchMethod(
-              Invocation.method(#verifyAttribute, [],
-                  {#user: user, #attribute: attribute, #code: code}),
+              Invocation.method(
+                  #verifyAttribute, [], {#attribute: attribute, #code: code}),
               returnValue: Future<_i2.AuthenticationAttributesResult>.value(
                   _FakeAuthenticationAttributesResult()))
           as _i4.Future<_i2.AuthenticationAttributesResult>);
   @override
   _i4.Future<_i2.AuthenticationAttributesResult> updateAttributes(
-          {_i5.User? user, Map<String, dynamic>? attributes}) =>
+          {Map<String, dynamic>? attributes}) =>
       (super.noSuchMethod(
-          Invocation.method(
-              #updateAttributes, [], {#user: user, #attributes: attributes}),
-          returnValue: Future<_i2.AuthenticationAttributesResult>.value(
-              _FakeAuthenticationAttributesResult())) as _i4
-          .Future<_i2.AuthenticationAttributesResult>);
-  @override
-  _i4.Future<_i2.AuthenticationAttributesResult> deleteAttributes(
-          {_i5.User? user, List<String>? attributes}) =>
-      (super.noSuchMethod(
-          Invocation.method(
-              #deleteAttributes, [], {#user: user, #attributes: attributes}),
+          Invocation.method(#updateAttributes, [], {#attributes: attributes}),
           returnValue: Future<_i2.AuthenticationAttributesResult>.value(
               _FakeAuthenticationAttributesResult())) as _i4
           .Future<_i2.AuthenticationAttributesResult>);

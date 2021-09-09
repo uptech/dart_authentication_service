@@ -111,10 +111,10 @@ main() async {
     test(
         'sends a new verification code and returns an authentication result object',
         () async {
-      when(cognitoProvider.resendVerificationCode(email: 'foo@bar.com'))
+      when(cognitoProvider.resendVerificationCode(username: 'foo@bar.com'))
           .thenAnswer((_) async => AuthenticationResult(success: true));
       var result =
-          await authentication.resendVerificationCode(email: 'foo@bar.com');
+          await authentication.resendVerificationCode(username: 'foo@bar.com');
       expect(result.success, true);
     });
   });
@@ -138,46 +138,39 @@ main() async {
 
   group('userAttributes()', () {
     test('get user attributes', () async {
-      var user = AuthenticationUser(username: 'foo');
-      when(cognitoProvider.getUserAttributes(user: user))
+      when(cognitoProvider.getUserAttributes())
           .thenAnswer((_) async => AuthenticationAttributesResult(
                 success: true,
-                attributes: [UserAttribute(name: "Test", value: "Value")],
+                attributes: {"Test": "Value"},
               ));
-      var result = await authentication.getUserAttributes(user: user);
+      var result = await authentication.getUserAttributes();
       expect(result.success, true);
       expect(
-        result.attributes?.first.name,
-        UserAttribute(name: "Test", value: "Value").name,
+        result.attributes?["Test"],
+        UserAttribute(name: "Test", value: "Value").value,
       );
     });
 
     test('get attribute verification code', () async {
-      var user = AuthenticationUser(username: 'foo');
       when(cognitoProvider.getAttributeVerificationCode(
-        user: user,
         attribute: 'email',
       )).thenAnswer((_) async => AuthenticationAttributesResult(
             success: true,
           ));
       var result = await authentication.getAttributeVerificationCode(
-        user: user,
         attribute: 'email',
       );
       expect(result.success, true);
     });
 
     test('verify attribute', () async {
-      var user = AuthenticationUser(username: 'foo');
       when(cognitoProvider.verifyAttribute(
-        user: user,
         attribute: 'email',
         code: '123456',
       )).thenAnswer((_) async => AuthenticationAttributesResult(
             success: true,
           ));
       var result = await authentication.verifyAttribute(
-        user: user,
         attribute: 'email',
         code: '123456',
       );
@@ -185,31 +178,13 @@ main() async {
     });
 
     test('update user attributes', () async {
-      var user = AuthenticationUser(username: 'foo');
       when(cognitoProvider.updateAttributes(
-        user: user,
         attributes: {'example:atrtribute': '1234567890'},
       )).thenAnswer((_) async => AuthenticationAttributesResult(
             success: true,
           ));
       var result = await authentication.updateAttributes(
-        user: user,
         attributes: {'example:atrtribute': '1234567890'},
-      );
-      expect(result.success, true);
-    });
-
-    test('update user attributes', () async {
-      var user = AuthenticationUser(username: 'foo');
-      when(cognitoProvider.deleteAttributes(
-        user: user,
-        attributes: ['example:atrtribute'],
-      )).thenAnswer((_) async => AuthenticationAttributesResult(
-            success: true,
-          ));
-      var result = await authentication.deleteAttributes(
-        user: user,
-        attributes: ['example:atrtribute'],
       );
       expect(result.success, true);
     });

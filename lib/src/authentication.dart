@@ -77,10 +77,13 @@ class Authentication {
   Future<AuthenticationResult> createUser(
       {required String username,
       required String password,
-      Map<String, dynamic>? properties}) async {
+      Map<String, String>? properties}) async {
     try {
       var result = await auth?.createUser(
-          username: username, password: password, properties: properties);
+        username: username,
+        password: password,
+        properties: properties,
+      );
 
       // cache the user so it can be used in the verifyUser step
       if (result?.success ?? false) {
@@ -96,10 +99,11 @@ class Authentication {
     }
   }
 
-  Future<AuthenticationResult> resendVerificationCode(
-      {required String email}) async {
+  Future<AuthenticationResult> resendVerificationCode({
+    required String username,
+  }) async {
     try {
-      var result = await auth?.resendVerificationCode(email: email);
+      var result = await auth?.resendVerificationCode(username: username);
       return result ??
           AuthenticationResult(
             success: false,
@@ -113,11 +117,12 @@ class Authentication {
     }
   }
 
-  Future<AuthenticationResult> verifyUser(
-      {required User user, required String code, String? attribute}) async {
+  Future<AuthenticationResult> verifyUser({
+    required User user,
+    required String code,
+  }) async {
     try {
-      var result =
-          await auth?.verifyUser(user: user, code: code, attribute: attribute);
+      var result = await auth?.verifyUser(user: user, code: code);
       return result ??
           AuthenticationResult(
               success: false, errors: [AuthenticationError.unknown]);
@@ -200,27 +205,25 @@ class Authentication {
   Future<AuthenticationResult> logOut() async {
     try {
       AuthenticationResult? result;
-      if (user != null) {
-        result = await auth?.logOut(user: user!);
-      } else {
-        result = await auth?.logOut();
-      }
+      result = await auth?.logOut();
       _removePersistedUser();
       user = null;
       return result ??
           AuthenticationResult(
-              success: false, errors: [AuthenticationError.unknown]);
+            success: false,
+            errors: [AuthenticationError.unknown],
+          );
     } catch (error) {
       return AuthenticationResult(
-          success: false, errors: [AuthenticationError.unknown]);
+        success: false,
+        errors: [AuthenticationError.unknown],
+      );
     }
   }
 
-  Future<AuthenticationAttributesResult> getUserAttributes({
-    required User user,
-  }) async {
+  Future<AuthenticationAttributesResult> getUserAttributes() async {
     try {
-      var result = await auth?.getUserAttributes(user: user);
+      var result = await auth?.getUserAttributes();
       return result ??
           AuthenticationAttributesResult(
             success: false,
@@ -236,12 +239,10 @@ class Authentication {
 
   /// Fetches a specific attribute's verification code
   Future<AuthenticationAttributesResult> getAttributeVerificationCode({
-    required User user,
     required String attribute,
   }) async {
     try {
       var result = await auth?.getAttributeVerificationCode(
-        user: user,
         attribute: attribute,
       );
       return result ??
@@ -260,13 +261,11 @@ class Authentication {
   /// Verifies the attribute and code. This is used for verifying a
   /// phone number or email
   Future<AuthenticationAttributesResult> verifyAttribute({
-    required User user,
     required String attribute,
     required String code,
   }) async {
     try {
       var result = await auth?.verifyAttribute(
-        user: user,
         attribute: attribute,
         code: code,
       );
@@ -285,35 +284,10 @@ class Authentication {
 
   /// Fetches a specific attribute's verification code
   Future<AuthenticationAttributesResult> updateAttributes({
-    required User user,
-    required Map<String, dynamic> attributes,
+    required Map<String, String> attributes,
   }) async {
     try {
       var result = await auth?.updateAttributes(
-        user: user,
-        attributes: attributes,
-      );
-      return result ??
-          AuthenticationAttributesResult(
-            success: false,
-            errors: [AuthenticationError.unknown],
-          );
-    } catch (error) {
-      return AuthenticationAttributesResult(
-        success: false,
-        errors: [AuthenticationError.unknown],
-      );
-    }
-  }
-
-  /// Fetches a specific attribute's verification code
-  Future<AuthenticationAttributesResult> deleteAttributes({
-    required User user,
-    required List<String> attributes,
-  }) async {
-    try {
-      var result = await auth?.deleteAttributes(
-        user: user,
         attributes: attributes,
       );
       return result ??
