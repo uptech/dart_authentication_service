@@ -1,11 +1,10 @@
 name: dart_authentication_service
-description: A new Dart package project.
+description: A simple flutter package to handle AWS Cognito based authentication and user attributes.
 version: 0.0.1
-author:
 homepage:
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   amplify_auth_cognito: ^0.2.2

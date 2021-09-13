@@ -1,5 +1,7 @@
 # Dart Authentication Service
 
+A simple flutter package to handle AWS Cognito based authentication and user attributes.
+
 ## Testing
 
 ### Run Tests
