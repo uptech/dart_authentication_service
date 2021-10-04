@@ -154,7 +154,7 @@ class CognitoProvider implements AuthenticationProvider {
 
   Future<AuthenticationResult> logOut() async {
     try {
-      Amplify.Auth.signOut();
+      await Amplify.Auth.signOut();
       return AuthenticationResult(success: true);
     } on AuthException catch (e) {
       print(e.message);
