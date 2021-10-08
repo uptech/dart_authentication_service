@@ -4,6 +4,9 @@ enum AuthenticationError {
   invalidPassword,
   invalidUsername,
   couldNotSignIn,
+  userNotConfirmed,
+  userNotFound,
+  usernameExists,
   unknown
 }
 

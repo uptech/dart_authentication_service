@@ -64,9 +64,23 @@ class CognitoProvider implements AuthenticationProvider {
           errors: [AuthenticationError.couldNotSignIn],
         );
       }
-    } on AuthException {
-      rethrow;
+    } on UserNotConfirmedException {
+      return AuthenticationResult(
+        success: false,
+        errors: [AuthenticationError.userNotConfirmed],
+      );
+    } on UsernameExistsException {
+      return AuthenticationResult(
+        success: false,
+        errors: [AuthenticationError.usernameExists],
+      );
+    } on UserNotFoundException {
+      return AuthenticationResult(
+        success: false,
+        errors: [AuthenticationError.userNotFound],
+      );
     } catch (e) {
+      print(e);
       return AuthenticationResult(
         success: false,
         errors: [AuthenticationError.unknown],
@@ -88,8 +102,21 @@ class CognitoProvider implements AuthenticationProvider {
       CognitoUserImpl user = CognitoUserImpl();
       user.username = username;
       return AuthenticationResult(success: true, user: user);
-    } on AuthException {
-      rethrow;
+    } on UserNotConfirmedException {
+      return AuthenticationResult(
+        success: false,
+        errors: [AuthenticationError.userNotConfirmed],
+      );
+    } on UsernameExistsException {
+      return AuthenticationResult(
+        success: false,
+        errors: [AuthenticationError.usernameExists],
+      );
+    } on UserNotFoundException {
+      return AuthenticationResult(
+        success: false,
+        errors: [AuthenticationError.userNotFound],
+      );
     } catch (e) {
       print(e);
       return AuthenticationResult(success: false);
