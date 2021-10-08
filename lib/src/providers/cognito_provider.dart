@@ -135,12 +135,12 @@ class CognitoProvider implements AuthenticationProvider {
   }
 
   Future<AuthenticationResult> verifyUser({
-    required User user,
+    required String username,
     required String code,
   }) async {
     try {
       await Amplify.Auth.confirmSignUp(
-        username: user.username ?? '',
+        username: username,
         confirmationCode: code,
       );
       return AuthenticationResult(success: true);

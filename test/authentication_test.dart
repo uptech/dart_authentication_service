@@ -89,10 +89,11 @@ main() async {
 
   group('verifyUser()', () {
     test('returns an authentication result object', () async {
-      var user = AuthenticationUser(username: 'foo');
-      when(cognitoProvider.verifyUser(user: user, code: '1234'))
+      var username = 'foo';
+      when(cognitoProvider.verifyUser(username: username, code: '1234'))
           .thenAnswer((_) async => AuthenticationResult(success: true));
-      var result = await authentication.verifyUser(user: user, code: '1234');
+      var result =
+          await authentication.verifyUser(username: username, code: '1234');
       expect(result.success, true);
     });
   });

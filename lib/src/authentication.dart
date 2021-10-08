@@ -118,11 +118,11 @@ class Authentication {
   }
 
   Future<AuthenticationResult> verifyUser({
-    required User user,
+    required String username,
     required String code,
   }) async {
     try {
-      var result = await auth?.verifyUser(user: user, code: code);
+      var result = await auth?.verifyUser(username: username, code: code);
       return result ??
           AuthenticationResult(
               success: false, errors: [AuthenticationError.unknown]);

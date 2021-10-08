@@ -26,7 +26,7 @@ abstract class AuthenticationProvider {
 
   /// Verifies the user and code
   Future<AuthenticationResult> verifyUser({
-    required User user,
+    required String username,
     required String code,
   });
 
