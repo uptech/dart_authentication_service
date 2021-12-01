@@ -11,9 +11,10 @@ class Authentication {
   final String accessTokenKey = 'accessToken';
   final String refreshTokenKey = 'refreshToken';
 
-  Future<void> init(
-      {required AuthenticationProvider provider,
-      String hivePath = 'authentication'}) async {
+  Future<void> init({
+    required AuthenticationProvider provider,
+    String hivePath = 'authentication',
+  }) async {
     this.auth = provider;
     Hive.init(hivePath);
     this.box = await Hive.openBox('authentication');
@@ -53,10 +54,11 @@ class Authentication {
     return AuthenticationResult(success: false);
   }
 
-  Future<AuthenticationResult> logIn(
-      {required String username,
-      required String password,
-      bool? rememberMe}) async {
+  Future<AuthenticationResult> logIn({
+    required String username,
+    required String password,
+    bool? rememberMe,
+  }) async {
     try {
       var result = await auth?.logIn(username: username, password: password);
       user = result?.user;
@@ -74,10 +76,11 @@ class Authentication {
     }
   }
 
-  Future<AuthenticationResult> createUser(
-      {required String username,
-      required String password,
-      Map<String, String>? properties}) async {
+  Future<AuthenticationResult> createUser({
+    required String username,
+    required String password,
+    Map<String, String>? properties,
+  }) async {
     try {
       var result = await auth?.createUser(
         username: username,
@@ -161,10 +164,11 @@ class Authentication {
     }
   }
 
-  Future<AuthenticationResult> setPassword(
-      {required User user,
-      required String code,
-      required String password}) async {
+  Future<AuthenticationResult> setPassword({
+    required User user,
+    required String code,
+    required String password,
+  }) async {
     try {
       var result =
           await auth?.setPassword(user: user, code: code, password: password);
@@ -320,6 +324,7 @@ class Authentication {
 
   void _removePersistedUser() {
     persistUser = false;
+    user = null;
     box?.put(usernameKey, null);
     box?.put(accessTokenKey, null);
     box?.put(refreshTokenKey, null);

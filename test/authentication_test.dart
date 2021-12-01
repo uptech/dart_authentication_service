@@ -77,6 +77,40 @@ main() async {
     });
   });
 
+  group('logOut()', () {
+    setUp(() {
+      when(cognitoProvider.logIn(
+        username: 'myuser',
+        password: 'password',
+      )).thenAnswer(
+        (_) async => AuthenticationResult(
+          success: true,
+          user: AuthenticationUser(username: 'myuser'),
+        ),
+      );
+
+      when(cognitoProvider.logOut()).thenAnswer(
+        (_) async => AuthenticationResult(
+          success: true,
+        ),
+      );
+    });
+
+    test('currentUser should be nil', () async {
+      await authentication.logIn(
+        username: 'myuser',
+        password: 'password',
+        rememberMe: true,
+      );
+      expect(authentication.lastUsername(), 'myuser');
+      expect(authentication.currentUser(), isNotNull);
+
+      await authentication.logOut();
+      expect(authentication.currentUser(), isNull);
+      expect(authentication.lastUsername(), isNull);
+    });
+  });
+
   group('createUser()', () {
     test('returns an authentication result object', () async {
       when(cognitoProvider.createUser(username: 'myuser', password: 'password'))
