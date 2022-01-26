@@ -1,7 +1,7 @@
 import 'dart:core';
 
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
-import 'package:amplify_flutter/amplify.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:dart_authentication_service/src/authentication_provider.dart';
 import 'package:dart_authentication_service/src/authentication_result.dart';
 import 'package:dart_authentication_service/src/providers/cognito_user.dart';
@@ -93,11 +93,16 @@ class CognitoProvider implements AuthenticationProvider {
     required String password,
     Map<String, String>? properties,
   }) async {
+    Map<CognitoUserAttributeKey, String> cognitoProperties = {};
+    if (properties != null) {
+      cognitoProperties = properties.map(
+          (key, value) => MapEntry(CognitoUserAttributeKey.custom(key), value));
+    }
     try {
       await Amplify.Auth.signUp(
         username: username,
         password: password,
-        options: CognitoSignUpOptions(userAttributes: properties ?? {}),
+        options: CognitoSignUpOptions(userAttributes: cognitoProperties),
       );
       CognitoUserImpl user = CognitoUserImpl();
       user.username = username;
@@ -210,7 +215,7 @@ class CognitoProvider implements AuthenticationProvider {
     required String password,
   }) async {
     try {
-      await Amplify.Auth.confirmPassword(
+      await Amplify.Auth.confirmResetPassword(
         username: user.username ?? '',
         newPassword: password,
         confirmationCode: code,
@@ -246,7 +251,7 @@ class CognitoProvider implements AuthenticationProvider {
       List<AuthUserAttribute> result = await Amplify.Auth.fetchUserAttributes();
       Map<String, String> attributes = Map.fromIterable(
         result,
-        key: (v) => v.userAttributeKey,
+        key: (v) => v.userAttributeKey.toString(),
         value: (v) => v.value,
       );
       return AuthenticationAttributesResult(
@@ -268,7 +273,7 @@ class CognitoProvider implements AuthenticationProvider {
   }) async {
     try {
       var res = await Amplify.Auth.resendUserAttributeConfirmationCode(
-        userAttributeKey: attribute,
+        userAttributeKey: attribute as UserAttributeKey,
       );
       var destination = res.codeDeliveryDetails.destination;
       print('Confirmation code set to $destination');
@@ -292,7 +297,7 @@ class CognitoProvider implements AuthenticationProvider {
   }) async {
     try {
       await Amplify.Auth.confirmUserAttribute(
-        userAttributeKey: attribute,
+        userAttributeKey: attribute as UserAttributeKey,
         confirmationCode: code,
       );
       return AuthenticationAttributesResult(success: true);
@@ -310,7 +315,10 @@ class CognitoProvider implements AuthenticationProvider {
     required Map<String, dynamic> attributes,
   }) async {
     final attributeList = attributes.entries
-        .map((e) => AuthUserAttribute(userAttributeKey: e.key, value: e.value))
+        .map((e) => AuthUserAttribute(
+              userAttributeKey: e.key as UserAttributeKey,
+              value: e.value,
+            ))
         .toList();
     try {
       var res =
