@@ -4,6 +4,7 @@ import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:dart_authentication_service/src/authentication_provider.dart';
 import 'package:dart_authentication_service/src/authentication_result.dart';
+import 'package:dart_authentication_service/src/extensions/first_where_null.dart';
 import 'package:dart_authentication_service/src/providers/cognito_user.dart';
 import 'package:dart_authentication_service/src/user.dart';
 import 'package:jose/jose.dart';
@@ -95,8 +96,8 @@ class CognitoProvider implements AuthenticationProvider {
   }) async {
     Map<CognitoUserAttributeKey, String> cognitoProperties = {};
     if (properties != null) {
-      cognitoProperties = properties.map(
-          (key, value) => MapEntry(CognitoUserAttributeKey.custom(key), value));
+      cognitoProperties = properties
+          .map((key, value) => MapEntry(_findUserAttributeKey(key), value));
     }
     try {
       await Amplify.Auth.signUp(
@@ -316,7 +317,7 @@ class CognitoProvider implements AuthenticationProvider {
   }) async {
     final attributeList = attributes.entries
         .map((e) => AuthUserAttribute(
-              userAttributeKey: e.key as UserAttributeKey,
+              userAttributeKey: _findUserAttributeKey(e.key),
               value: e.value,
             ))
         .toList();
@@ -359,5 +360,11 @@ class CognitoProvider implements AuthenticationProvider {
     user.idToken = session.userPoolTokens?.idToken;
     user.id = session.userSub;
     return user;
+  }
+
+  CognitoUserAttributeKey _findUserAttributeKey(String key) {
+    return CognitoUserAttributeKey.values
+            .firstWhereOrNull((e) => e.key == key) ??
+        CognitoUserAttributeKey.custom(key);
   }
 }
